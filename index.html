@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>matterJs</title>
+    <style>
+      body {
+        background: #000;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="matter.js"></script>
+    <script>
+      let x = window.innerWidth;
+      let y = window.innerHeight;
+      //creates matter.js engine
+      let engine = Matter.Engine.create();
+      //creates canvas screen
+      let render = Matter.Render.create({
+        element: document.body,
+        engine: engine,
+        options: {
+          width: x,
+          height: y,
+          wireframes: false,
+        },
+      });
+      //enabling mouse drag
+      let mouse = Matter.Mouse.create(render.canvas);
+      let mouseconstraint = Matter.MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+          render: { visible: false },
+        },
+      });
+      render.mouse = mouse;
+      //creates static ground
+      let ground = Matter.Bodies.rectangle(x / 2, y - 50, x, 2, {
+        isStatic: true,
+      });
+      //creates pyramid
+      let pyramid = Matter.Composites.pyramid(
+        x / 2 - 30 * 5,
+        y - 35 * 10,
+        10,
+        10,
+        0,
+        0,
+        (x, y) => {
+          let randomColor = Math.floor(Math.random() * 16777215).toString(16);
+          return Matter.Bodies.rectangle(x, y, 35, 35, {
+            render: {
+              fillStyle: "#" + randomColor,
+            },
+          });
+        }
+      );
+      //creates balls
+      let balls = Matter.Composites.stack(50, 5, 1, 10, 0, 0, (x, y) => {
+        let randomColor = Math.floor(Math.random() * 16777215).toString(16);
+        return Matter.Bodies.circle(x, y, 20, {
+          render: {
+            fillStyle: "#" + randomColor,
+          },
+        });
+      });
+      //joins all the balls
+      let chain = Matter.Composites.chain(balls, 0, 0, 0, 0, {
+        stiffness: 1,
+        render: {
+          anchors: false,
+          lineWidth: 0,
+        },
+      });
+      //creates a constriat and join to balls
+      Matter.Composite.add(
+        balls,
+        Matter.Constraint.create({
+          bodyA: balls.bodies[0],
+          pointB: { x: 50, y: 5 },
+          length: 75,
+          stiffness: 0.8,
+          render: {
+            anchors: false,
+          },
+        })
+      );
+      //add all elemetns
+      Matter.World.add(engine.world, [ground, pyramid, chain, mouseconstraint]);
+      //running the engine
+      Matter.Engine.run(engine);
+      Matter.Render.run(render);
+    </script>
+  </body>
+</html>
