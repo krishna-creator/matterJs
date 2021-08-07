@@ -54,6 +54,7 @@
         (x, y) => {
           let randomColor = Math.floor(Math.random() * 16777215).toString(16);
           return Matter.Bodies.rectangle(x, y, 35, 35, {
+            static: true,
             render: {
               fillStyle: "#" + randomColor,
             },
