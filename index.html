@@ -60,7 +60,7 @@
           });
         }
       );
-      //creates balls
+      //create balls
       let balls = Matter.Composites.stack(50, 5, 1, 10, 0, 0, (x, y) => {
         let randomColor = Math.floor(Math.random() * 16777215).toString(16);
         return Matter.Bodies.circle(x, y, 20, {
